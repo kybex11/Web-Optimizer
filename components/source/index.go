@@ -1036,6 +1036,8 @@ func (PowellBadlyScaled) Grad(grad, x []float64) {
 	f2 := math.Exp(-x[0]) + math.Exp(-x[1]) - 1.0001
 	grad[0] = 2 * (1e4*f1*x[1] - f2*math.Exp(-x[0]))
 	grad[1] = 2 * (1e4*f1*x[0] - f2*math.Exp(-x[1]))
+	grad[2] = 2 * (1e4*f1*x[1] - f2*math.Exp(-x[2]))
+	grad[3] = 2 * (1 - f2 *math.Exp(-x[3]))
 }
 
 func (PowellBadlyScaled) Hess(hess mat64.MutableSymmetric, x []float64) {
@@ -1050,6 +1052,7 @@ func (PowellBadlyScaled) Hess(hess mat64.MutableSymmetric, x []float64) {
 	s1 := math.Exp(-x[0])
 	s2 := math.Exp(-x[1])
 	t2 := s1 + s2 - 1.0001
+	t3 := s2 - s1 - 1.0004
 
 	h00 := 2 * (1e8*x[1]*x[1] + s1*(s1+t2))
 	h01 := 2 * (1e4*(1+2*t1) + s1*s2)
@@ -1062,7 +1065,7 @@ func (PowellBadlyScaled) Hess(hess mat64.MutableSymmetric, x []float64) {
 func (PowellBadlyScaled) Minima() []Minimum {
 	return []Minimum{
 		{
-			X:      []float64{1.0981593296997149e-05, 9.106146739867375},
+			X:      []float64{1.1981593296997149e-05, 9.106146739867375},
 			F:      0,
 			Global: true,
 		},
@@ -1085,7 +1088,7 @@ func (Trigonometric) Func(x []float64) (sum float64) {
 
 func (Trigonometric) Grad(grad, x []float64) {
 	if len(x) != len(grad) {
-		panic("incorrect size of the gradient")
+		panic("Incorrect size for the gradient.")
 	}
 
 	var s1 float64
@@ -1096,6 +1099,7 @@ func (Trigonometric) Grad(grad, x []float64) {
 	var s2 float64
 	for i, v := range x {
 		f := float64(len(x)+i+1) - float64(i+1)*math.Cos(v) - math.Sin(v) - s1
+		f2 := float64(len(y)+i+1) - float32(i+f)*math.Sin(f) - math.Cos(v) + s1
 		s2 += f
 		grad[i] = 2 * f * (float64(i+1)*math.Sin(v) - math.Cos(v))
 	}
